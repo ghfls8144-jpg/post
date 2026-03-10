@@ -35,19 +35,9 @@ const KNOWLEDGE_BASE = `
 ⑩ 주주명부, ⑪ 4대 사회보험 사업장 가입 명부, ⑫ 비수도권 소재 확약서
 ⑬ 사실증명, ⑭ 기타 가점 및 성과 관련 증빙서류
 
-【평가 절차】
-- 1차: 신청(5.8~5.27) → 요건검토(6월) → 발표평가(6월 말) → 최종선정(7월 초)
-- 2차: 신청(8.1~8.20) → 요건검토(8월 말) → 발표평가(9월 초) → 최종선정(9월 중)
-- 발표평가: 40분 이내 (발표 20분 + 질의응답 20분), 60점 미만 시 탈락
-
 【가점 항목 (최대 2점)】
 - 스타트업 10대 초격차 분야: 1점
 - 내일채움공제(플러스) 도입·운영: 1점
-
-【투자 인정 기준】
-- 단독투자: 창조경제혁신센터 5천만원 이상, 공고일 기준 1년 이내
-- 공동투자: 창조경제혁신센터 50% 이상 투자 의무
-- 신주투자만 인정, 전환사채(CB)·조건부지분전환계약(CN) 불가
 
 ■ 포스트팁스(Post-TIPS)
 
@@ -80,19 +70,6 @@ const KNOWLEDGE_BASE = `
 - 스타트업 10대 초격차 분야: 1점
 - 내일채움공제(플러스) 도입·운영: 1점
 
-【제출 서류】
-① 포스트팁스 사업계획서, ② 신청 기본사항, ③ 참가신청서
-④ 개인정보 동의, ⑤ 투자계약서·투자금 납입내역, ⑥ 주주명부
-⑦ 법인등기부등본 및 사업자등록증, ⑧ 팁스 졸업 성공 공문
-⑨ 대표자 총사업자등록내역 사실증명
-
-■ 공통 사항
-
-【신청 제외 대상】
-- 채무불이행 규제 중인 자, 국세·지방세 체납 중인 자
-- 지원 제외 업종 (일반유흥주점업, 무도유흥주점업 등)
-- 2025년 창업사업화 지원사업 수행 중인 자
-
 【문의처】
 - 프리팁스: 중소기업 통합 콜센터 1357
 - 포스트팁스 한국벤처캐피탈협회: 02-3017-7026
@@ -122,7 +99,7 @@ export default async function handler(req, res) {
 ${KNOWLEDGE_BASE}`;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -140,6 +117,10 @@ ${KNOWLEDGE_BASE}`;
     );
 
     const data = await response.json();
+    
+    // 응답 전체 로그 출력
+    console.log("Gemini 응답 전체:", JSON.stringify(data));
+
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!text) throw new Error("Gemini 응답 오류");
