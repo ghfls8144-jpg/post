@@ -1,0 +1,9 @@
+{
+  "name": "post-tips-chatbot",
+  "version": "1.0.0",
+  "description": "2026년 포스트 팁스 창업기업 모집공고 AI 안내 챗봇",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  }
+}
