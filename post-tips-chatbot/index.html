@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>포스트 팁스 AI 안내봇 | 2026년 창업기업 모집공고</title>
+<meta name="description" content="2026년 포스트 팁스(Post-TIPS) 창업기업 모집공고 AI 안내 서비스">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07090f;
+    --surface: #0e1117;
+    --surface2: #161b26;
+    --surface3: #1c2333;
+    --border: #21283a;
+    --border2: #2d3748;
+    --accent: #3b82f6;
+    --accent2: #60a5fa;
+    --accent3: #93c5fd;
+    --accent-glow: rgba(59,130,246,0.12);
+    --accent-glow2: rgba(59,130,246,0.25);
+    --purple: #7c3aed;
+    --purple-glow: rgba(124,58,237,0.15);
+    --text: #e2e8f0;
+    --text-muted: #4a5568;
+    --text-dim: #718096;
+    --text-soft: #a0aec0;
+    --user-bg: #1a2744;
+    --bot-bg: #0e1117;
+    --success: #10b981;
+    --warning: #f59e0b;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { height: 100%; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Animated background gradient */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 10% 0%, rgba(59,130,246,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 100%, rgba(124,58,237,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 24px;
+    background: rgba(7,9,15,0.9);
+    backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .logo-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .logo {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 0 24px var(--accent-glow2), 0 0 48px var(--purple-glow);
+  }
+  .logo-ping {
+    position: absolute;
+    top: -3px; right: -3px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--success);
+    border: 2px solid var(--bg);
+    animation: ping 2s ease-in-out infinite;
+  }
+  @keyframes ping {
+    0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+    50% { box-shadow: 0 0 0 4px rgba(16,185,129,0); }
+  }
+
+  .header-text { flex: 1; min-width: 0; }
+  .header-text h1 {
+    font-size: 14px; font-weight: 700; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+    background: linear-gradient(90deg, #fff 0%, var(--accent3) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .header-text p {
+    font-size: 11px; color: var(--text-muted); margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .header-badge {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 10px; border-radius: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-size: 11px; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .header-badge span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 6px var(--success);
+  }
+
+  /* ── QUICK TAGS ── */
+  .tags-bar {
+    position: relative; z-index: 10;
+    display: flex; gap: 8px;
+    padding: 10px 24px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    scrollbar-width: none;
+  }
+  .tags-bar::-webkit-scrollbar { display: none; }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: 20px;
+    font-size: 11.5px; white-space: nowrap; cursor: pointer;
+    border: 1px solid var(--border);
+    color: var(--text-dim); background: var(--surface2);
+    transition: all 0.2s ease; user-select: none;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .tag:hover {
+    border-color: var(--accent);
+    color: var(--accent2);
+    background: var(--accent-glow);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--accent-glow);
+  }
+  .tag:active { transform: translateY(0); }
+
+  /* ── CHAT AREA ── */
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    scroll-behavior: smooth;
+  }
+
+  #chat::-webkit-scrollbar { width: 4px; }
+  #chat::-webkit-scrollbar-track { background: transparent; }
+  #chat::-webkit-scrollbar-thumb {
+    background: var(--border2); border-radius: 2px;
+  }
+  #chat::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  /* ── MESSAGES ── */
+  .msg {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    animation: msgIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 820px;
+  }
+  .msg.user { flex-direction: row-reverse; align-self: flex-end; }
+  .msg.bot { align-self: flex-start; }
+
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .avatar {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .avatar.bot {
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    box-shadow: 0 0 16px var(--accent-glow2);
+  }
+  .avatar.user {
+    background: var(--user-bg);
+    border: 1px solid rgba(59,130,246,0.3);
+  }
+
+  .bubble-wrap { display: flex; flex-direction: column; gap: 4px; max-width: 78%; }
+  .msg.user .bubble-wrap { align-items: flex-end; }
+
+  .bubble {
+    padding: 13px 16px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.75;
+    word-break: keep-all;
+  }
+  .bubble.bot {
+    background: var(--bot-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-top-left-radius: 4px;
+  }
+  .bubble.user {
+    background: var(--user-bg);
+    border: 1px solid rgba(59,130,246,0.2);
+    color: var(--text);
+    border-top-right-radius: 4px;
+  }
+
+  /* Markdown-like styling inside bubbles */
+  .bubble strong { color: var(--accent2); font-weight: 600; }
+  .bubble em { color: var(--warning); font-style: normal; font-weight: 500; }
+  .bubble ul, .bubble ol { padding-left: 20px; margin: 8px 0; }
+  .bubble li { margin: 5px 0; color: var(--text-soft); }
+  .bubble li::marker { color: var(--accent); }
+  .bubble hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+  .bubble .code {
+    display: inline-block;
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12.5px;
+    color: var(--accent3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .bubble .section-title {
+    color: var(--accent2); font-weight: 700; font-size: 13px;
+    margin-bottom: 4px; display: block;
+  }
+  .bubble .info-box {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: 8px 0;
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+
+  .msg-time {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    padding: 0 4px;
+  }
+
+  /* ── TYPING INDICATOR ── */
+  .typing-dots {
+    display: flex; gap: 4px; align-items: center;
+    padding: 5px 2px;
+  }
+  .typing-dots span {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent);
+    animation: typingBounce 1.4s ease-in-out infinite;
+    opacity: 0.7;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce {
+    0%,60%,100% { transform: translateY(0); opacity: 0.7; }
+    30% { transform: translateY(-7px); opacity: 1; }
+  }
+
+  /* ── WELCOME CARD ── */
+  .welcome-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    max-width: 600px;
+    align-self: center;
+    text-align: center;
+    animation: msgIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .welcome-card .w-icon { font-size: 36px; margin-bottom: 12px; }
+  .welcome-card h2 {
+    font-size: 17px; font-weight: 700; margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff 0%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .welcome-card p { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+
+  .welcome-card .notice {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 14px 0;
+    font-size: 12px;
+    color: var(--warning);
+    text-align: left;
+  }
+
+  .quick-btns {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center; margin-top: 16px;
+  }
+  .quick-btn {
+    padding: 8px 14px; border-radius: 10px;
+    border: 1px solid var(--border2);
+    background: var(--surface2); color: var(--text-soft);
+    font-size: 12.5px; cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .quick-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent2);
+    background: var(--accent-glow);
+    transform: translateY(-1px);
+  }
+
+  /* ── INPUT AREA ── */
+  .input-area {
+    position: relative; z-index: 20;
+    padding: 16px 24px 20px;
+    background: rgba(7,9,15,0.95);
+    backdrop-filter: blur(24px);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .input-wrap {
+    display: flex; align-items: flex-end; gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    padding: 10px 12px 10px 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow), 0 4px 24px var(--accent-glow);
+  }
+
+  #userInput {
+    flex: 1; background: none; border: none; outline: none;
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px; resize: none;
+    max-height: 130px; min-height: 24px;
+    line-height: 1.6;
+    scrollbar-width: none;
+  }
+  #userInput::-webkit-scrollbar { display: none; }
+  #userInput::placeholder { color: var(--text-muted); }
+
+  #sendBtn {
+    width: 36px; height: 36px; border-radius: 10px; border: none;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    color: #fff; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 0 16px var(--accent-glow2);
+  }
+  #sendBtn:hover:not(:disabled) {
+    transform: scale(1.08);
+    box-shadow: 0 0 24px var(--accent-glow2);
+  }
+  #sendBtn:disabled {
+    opacity: 0.35; cursor: not-allowed; transform: none;
+    box-shadow: none;
+  }
+
+  .input-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 8px; padding: 0 2px;
+  }
+  .input-footer-left {
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .input-footer-right {
+    font-size: 11px; color: var(--text-muted);
+  }
+
+  /* ── ERROR TOAST ── */
+  .toast {
+    position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
+    background: #7f1d1d; border: 1px solid #991b1b;
+    color: #fca5a5; border-radius: 10px;
+    padding: 10px 18px; font-size: 13px;
+    z-index: 100; display: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    header { padding: 12px 16px; }
+    .header-badge { display: none; }
+    .tags-bar { padding: 8px 16px; }
+    #chat { padding: 20px 16px; }
+    .bubble-wrap { max-width: 88%; }
+    .input-area { padding: 12px 16px 16px; }
+    .welcome-card { padding: 20px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo-wrap">
+    <div class="logo">🚀</div>
+    <div class="logo-ping"></div>
+  </div>
+  <div class="header-text">
+    <h1>포스트 팁스(Post-TIPS) AI 안내봇</h1>
+    <p>창업진흥원 공고 제2026-13호 · Gemini AI</p>
+  </div>
+  <div class="header-badge">
+    <span></span>
+    온라인
+  </div>
+</header>
+
+<!-- ── QUICK TAGS ── -->
+<div class="tags-bar">
+  <div class="tag" onclick="ask('포스트 팁스 사업이 무엇인가요?')">📌 사업개요</div>
+  <div class="tag" onclick="ask('신청 자격이 어떻게 되나요?')">📋 신청자격</div>
+  <div class="tag" onclick="ask('지원 금액과 사업화 자금 구성을 알려주세요')">💰 지원금액</div>
+  <div class="tag" onclick="ask('신청 기간과 방법을 알려주세요')">📅 접수기간</div>
+  <div class="tag" onclick="ask('평가 기준과 절차를 알려주세요')">⚖️ 평가절차</div>
+  <div class="tag" onclick="ask('신청 제외 대상이 누구인가요?')">❌ 제외대상</div>
+  <div class="tag" onclick="ask('주관기관은 어디이고 차이가 무엇인가요?')">🏢 주관기관</div>
+  <div class="tag" onclick="ask('창업프로그램은 어떤 내용인가요?')">🎯 창업프로그램</div>
+  <div class="tag" onclick="ask('신산업 창업 분야 27가지를 알려주세요')">🔬 신산업분야</div>
+  <div class="tag" onclick="ask('동시수행이 불가한 사업 목록을 알려주세요')">🚫 동시수행불가</div>
+  <div class="tag" onclick="ask('사업비 비목 구성을 알려주세요')">📊 사업비구성</div>
+  <div class="tag" onclick="ask('선정 후 의무와 주의사항이 무엇인가요?')">⚠️ 유의사항</div>
+</div>
+
+<!-- ── CHAT ── -->
+<div id="chat">
+  <div class="welcome-card">
+    <div class="w-icon">🤖</div>
+    <h2>포스트 팁스 모집공고 AI 안내봇</h2>
+    <p>
+      2026년 포스트 팁스(Post-TIPS) 창업기업 모집공고 전체 내용을<br>
+      학습했습니다. 신청 자격, 지원 금액, 절차 등 무엇이든 질문해 주세요.
+    </p>
+    <div class="notice">
+      ⚠️ &nbsp;본 봇은 공고문 기반 참고용입니다. 최종 확인은 반드시 주관기관에 문의하세요.
+    </div>
+    <div class="quick-btns">
+      <button class="quick-btn" onclick="ask('내가 신청 가능한지 자격 요건을 알려주세요')">✅ 신청 자격 확인</button>
+      <button class="quick-btn" onclick="ask('사업화 자금은 얼마이고 어떻게 구성되나요?')">💵 지원금 상세</button>
+      <button class="quick-btn" onclick="ask('신청 마감일과 제출 서류를 알려주세요')">📄 제출 서류 안내</button>
+      <button class="quick-btn" onclick="ask('협약체결확약서란 무엇이고 언제 제출하나요?')">📝 확약서 안내</button>
+      <button class="quick-btn" onclick="ask('평가지표 4가지를 자세히 알려주세요')">📈 평가지표</button>
+      <button class="quick-btn" onclick="ask('문의 연락처를 알려주세요')">📞 문의처</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ERROR TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── INPUT ── -->
+<div class="input-area">
+  <div class="input-wrap">
+    <textarea
+      id="userInput"
+      placeholder="포스트 팁스 관련 질문을 입력하세요..."
+      rows="1"
+    ></textarea>
+    <button id="sendBtn" title="전송 (Enter)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"
+          stroke="white" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="input-footer">
+    <span class="input-footer-left">shift+enter 줄바꿈 · enter 전송</span>
+    <span class="input-footer-right" id="charCount" style="color: var(--text-muted); font-size:11px;"></span>
+  </div>
+</div>
+
+<script>
+// ── 상태 ──
+const chatEl      = document.getElementById('chat');
+const inputEl     = document.getElementById('userInput');
+const sendBtn     = document.getElementById('sendBtn');
+const charCount   = document.getElementById('charCount');
+const toastEl     = document.getElementById('toast');
+
+let history    = [];   // { role, content }[]
+let isLoading  = false;
+
+// ── 유틸 ──
+function now() {
+  return new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function showToast(msg, duration = 4000) {
+  toastEl.textContent = msg;
+  toastEl.style.display = 'block';
+  setTimeout(() => { toastEl.style.display = 'none'; }, duration);
+}
+
+function autoResize() {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 130) + 'px';
+  charCount.textContent = inputEl.value.length > 0
+    ? `${inputEl.value.length}자` : '';
+}
+
+// ── 마크다운 경량 파서 ──
+function parseMarkdown(text) {
+  return text
+    // bold
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // italic (경고 강조용)
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // inline code
+    .replace(/`([^`]+)`/g, '<span class="code">$1</span>')
+    // headers → section-title
+    .replace(/^#{1,3}\s+(.+)$/gm, '<span class="section-title">$1</span>')
+    // horizontal rule
+    .replace(/^---$/gm, '<hr>')
+    // unordered list
+    .replace(/^\s*[-•]\s+(.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+    // ordered list
+    .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
+    // line breaks
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+// ── 메시지 추가 ──
+function addMessage(role, text, typing = false) {
+  const wrap = document.createElement('div');
+  wrap.className = `msg ${role}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = `avatar ${role}`;
+  avatar.textContent = role === 'bot' ? '🤖' : '👤';
+
+  const bubbleWrap = document.createElement('div');
+  bubbleWrap.className = 'bubble-wrap';
+
+  const bubble = document.createElement('div');
+  bubble.className = `bubble ${role}`;
+
+  if (typing) {
+    bubble.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+    wrap.id = 'typing-msg';
+  } else {
+    bubble.innerHTML = parseMarkdown(text);
+    const timeEl = document.createElement('div');
+    timeEl.className = 'msg-time';
+    timeEl.textContent = now();
+    bubbleWrap.appendChild(bubble);
+    bubbleWrap.appendChild(timeEl);
+  }
+
+  if (typing) {
+    bubbleWrap.appendChild(bubble);
+  }
+
+  wrap.appendChild(avatar);
+  wrap.appendChild(bubbleWrap);
+  chatEl.appendChild(wrap);
+  chatEl.scrollTop = chatEl.scrollHeight;
+  return wrap;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-msg');
+  if (t) t.remove();
+}
+
+// ── API 호출 ──
+async function callAPI(messages) {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data.reply;
+}
+
+// ── 전송 ──
+async function sendMsg() {
+  const text = inputEl.value.trim();
+  if (!text || isLoading) return;
+
+  inputEl.value = '';
+  autoResize();
+  isLoading = true;
+  sendBtn.disabled = true;
+
+  addMessage('user', text);
+  history.push({ role: 'user', content: text });
+
+  addMessage('bot', '', true); // typing
+
+  try {
+    const reply = await callAPI(history);
+    removeTyping();
+    addMessage('bot', reply);
+    history.push({ role: 'assistant', content: reply });
+  } catch (err) {
+    removeTyping();
+    showToast('❌ 오류: ' + err.message);
+    addMessage('bot', '⚠️ 응답을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.\n\n직접 문의: **한국벤처캐피탈협회** 02-3017-7030 / **창업진흥원** 02-2039-1354');
+    history.pop(); // 실패한 user 메시지 롤백
+  }
+
+  isLoading = false;
+  sendBtn.disabled = false;
+  inputEl.focus();
+}
+
+function ask(q) {
+  inputEl.value = q;
+  autoResize();
+  sendMsg();
+}
+
+// ── 이벤트 ──
+inputEl.addEventListener('input', autoResize);
+inputEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMsg();
+  }
+});
+sendBtn.addEventListener('click', sendMsg);
+inputEl.focus();
+</script>
+</body>
+</html>
